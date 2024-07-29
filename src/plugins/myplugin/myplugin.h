@@ -1,6 +1,6 @@
 
 /*
- * my_test_plugin.h - skeleton vpp engine plug-in header file
+ * myplugin.h - skeleton vpp engine plug-in header file
  *
  * Copyright (c) <current-year> <your-organization>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef __included_my_test_plugin_h__
-#define __included_my_test_plugin_h__
+#ifndef __included_myplugin_h__
+#define __included_myplugin_h__
 
 #include <vnet/vnet.h>
 #include <vnet/ip/ip.h>
@@ -38,21 +38,21 @@ typedef struct {
     vlib_main_t * vlib_main;
     vnet_main_t * vnet_main;
     ethernet_main_t * ethernet_main;
-} my_test_plugin_main_t;
+} myplugin_main_t;
 
-extern my_test_plugin_main_t my_test_plugin_main;
+extern myplugin_main_t myplugin_main;
 
-extern vlib_node_registration_t my_test_plugin_node;
-extern vlib_node_registration_t my_test_plugin_periodic_node;
+extern vlib_node_registration_t myplugin_node;
+extern vlib_node_registration_t myplugin_periodic_node;
 
 /* Periodic function events */
-#define MY_TEST_PLUGIN_EVENT1 1
-#define MY_TEST_PLUGIN_EVENT2 2
-#define MY_TEST_PLUGIN_EVENT_PERIODIC_ENABLE_DISABLE 3
+#define MYPLUGIN_EVENT1 1
+#define MYPLUGIN_EVENT2 2
+#define MYPLUGIN_EVENT_PERIODIC_ENABLE_DISABLE 3
 
-void my_test_plugin_create_periodic_process (my_test_plugin_main_t *);
+void myplugin_create_periodic_process (myplugin_main_t *);
 
-#endif /* __included_my_test_plugin_h__ */
+#endif /* __included_myplugin_h__ */
 
 /*
  * fd.io coding-style-patch-verification: ON

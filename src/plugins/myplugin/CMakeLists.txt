@@ -12,19 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_vpp_plugin(my_test_plugin
+add_vpp_plugin(myplugin
   SOURCES
-  my_test_plugin.c
+  myplugin.c
   node.c
-  my_test_plugin_periodic.c
-  my_test_plugin.h
+  myplugin_periodic.c
+  myplugin.h
 
   MULTIARCH_SOURCES
   node.c
 
   API_FILES
-  my_test_plugin.api
+  myplugin.api
 
   API_TEST_SOURCES
-  my_test_plugin_test.c
+  myplugin_test.c
 )

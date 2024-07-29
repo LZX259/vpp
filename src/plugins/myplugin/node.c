@@ -18,7 +18,7 @@
 #include <vnet/vnet.h>
 #include <vnet/pg/pg.h>
 #include <vppinfra/error.h>
-#include <my_test_plugin/my_test_plugin.h>
+#include <myplugin/myplugin.h>
 
 typedef struct 
 {
@@ -26,7 +26,7 @@ typedef struct
   u32 sw_if_index;
   u8 new_src_mac[6];
   u8 new_dst_mac[6];
-} my_test_plugin_trace_t;
+} myplugin_trace_t;
 
 #ifndef CLIB_MARCH_VARIANT
 static u8 *
@@ -38,13 +38,13 @@ my_format_mac_address (u8 * s, va_list * args)
 }
 
 /* packet trace format function */
-static u8 * format_my_test_plugin_trace (u8 * s, va_list * args)
+static u8 * format_myplugin_trace (u8 * s, va_list * args)
 {
   CLIB_UNUSED (vlib_main_t * vm) = va_arg (*args, vlib_main_t *);
   CLIB_UNUSED (vlib_node_t * node) = va_arg (*args, vlib_node_t *);
-  my_test_plugin_trace_t * t = va_arg (*args, my_test_plugin_trace_t *);
+  myplugin_trace_t * t = va_arg (*args, myplugin_trace_t *);
   
-  s = format (s, "MY_TEST_PLUGIN: sw_if_index %d, next index %d\n",
+  s = format (s, "MYPLUGIN: sw_if_index %d, next index %d\n",
               t->sw_if_index, t->next_index);
   s = format (s, "  new src %U -> new dst %U",
               my_format_mac_address, t->new_src_mac, 
@@ -52,34 +52,34 @@ static u8 * format_my_test_plugin_trace (u8 * s, va_list * args)
   return s;
 }
 
-vlib_node_registration_t my_test_plugin_node;
+vlib_node_registration_t myplugin_node;
 
 #endif /* CLIB_MARCH_VARIANT */
 
-#define foreach_my_test_plugin_error \
+#define foreach_myplugin_error \
 _(SWAPPED, "Mac swap packets processed")
 
 typedef enum {
-#define _(sym,str) MY_TEST_PLUGIN_ERROR_##sym,
-  foreach_my_test_plugin_error
+#define _(sym,str) MYPLUGIN_ERROR_##sym,
+  foreach_myplugin_error
 #undef _
-  MY_TEST_PLUGIN_N_ERROR,
-} my_test_plugin_error_t;
+  MYPLUGIN_N_ERROR,
+} myplugin_error_t;
 
 #ifndef CLIB_MARCH_VARIANT
-static char * my_test_plugin_error_strings[] = 
+static char * myplugin_error_strings[] = 
 {
 #define _(sym,string) string,
-  foreach_my_test_plugin_error
+  foreach_myplugin_error
 #undef _
 };
 #endif /* CLIB_MARCH_VARIANT */
 
 typedef enum 
 {
-  MY_TEST_PLUGIN_NEXT_INTERFACE_OUTPUT,
-  MY_TEST_PLUGIN_N_NEXT,
-} my_test_plugin_next_t;
+  MYPLUGIN_NEXT_INTERFACE_OUTPUT,
+  MYPLUGIN_N_NEXT,
+} myplugin_next_t;
 
 #define foreach_mac_address_offset              \
 _(0)                                            \
@@ -90,12 +90,12 @@ _(4)                                            \
 _(5)
 
 
-VLIB_NODE_FN (my_test_plugin_node) (vlib_main_t * vm,
+VLIB_NODE_FN (myplugin_node) (vlib_main_t * vm,
 		  vlib_node_runtime_t * node,
 		  vlib_frame_t * frame)
 {
   u32 n_left_from, * from, * to_next;
-  my_test_plugin_next_t next_index;
+  myplugin_next_t next_index;
   u32 pkts_swapped = 0;
 
   from = vlib_frame_vector_args (frame);
@@ -111,8 +111,8 @@ VLIB_NODE_FN (my_test_plugin_node) (vlib_main_t * vm,
 
       while (n_left_from >= 4 && n_left_to_next >= 2)
 	{
-          u32 next0 = MY_TEST_PLUGIN_NEXT_INTERFACE_OUTPUT;
-          u32 next1 = MY_TEST_PLUGIN_NEXT_INTERFACE_OUTPUT;
+          u32 next0 = MYPLUGIN_NEXT_INTERFACE_OUTPUT;
+          u32 next1 = MYPLUGIN_NEXT_INTERFACE_OUTPUT;
           u32 sw_if_index0, sw_if_index1;
           u8 tmp0[6], tmp1[6];
           ethernet_header_t *en0, *en1;
@@ -184,7 +184,7 @@ VLIB_NODE_FN (my_test_plugin_node) (vlib_main_t * vm,
             {
               if (b0->flags & VLIB_BUFFER_IS_TRACED) 
                 {
-                    my_test_plugin_trace_t *t = 
+                    myplugin_trace_t *t = 
                       vlib_add_trace (vm, node, b0, sizeof (*t));
                     t->sw_if_index = sw_if_index0;
                     t->next_index = next0;
@@ -195,7 +195,7 @@ VLIB_NODE_FN (my_test_plugin_node) (vlib_main_t * vm,
                   }
                 if (b1->flags & VLIB_BUFFER_IS_TRACED) 
                   {
-                    my_test_plugin_trace_t *t = 
+                    myplugin_trace_t *t = 
                       vlib_add_trace (vm, node, b1, sizeof (*t));
                     t->sw_if_index = sw_if_index1;
                     t->next_index = next1;
@@ -216,7 +216,7 @@ VLIB_NODE_FN (my_test_plugin_node) (vlib_main_t * vm,
 	{
           u32 bi0;
 	  vlib_buffer_t * b0;
-          u32 next0 = MY_TEST_PLUGIN_NEXT_INTERFACE_OUTPUT;
+          u32 next0 = MYPLUGIN_NEXT_INTERFACE_OUTPUT;
           u32 sw_if_index0;
           u8 tmp0[6];
           ethernet_header_t *en0;
@@ -256,7 +256,7 @@ VLIB_NODE_FN (my_test_plugin_node) (vlib_main_t * vm,
 
           if (PREDICT_FALSE((node->flags & VLIB_NODE_FLAG_TRACE) 
                             && (b0->flags & VLIB_BUFFER_IS_TRACED))) {
-            my_test_plugin_trace_t *t = 
+            myplugin_trace_t *t = 
                vlib_add_trace (vm, node, b0, sizeof (*t));
             t->sw_if_index = sw_if_index0;
             t->next_index = next0;
@@ -277,28 +277,28 @@ VLIB_NODE_FN (my_test_plugin_node) (vlib_main_t * vm,
       vlib_put_next_frame (vm, node, next_index, n_left_to_next);
     }
 
-  vlib_node_increment_counter (vm, my_test_plugin_node.index, 
-                               MY_TEST_PLUGIN_ERROR_SWAPPED, pkts_swapped);
+  vlib_node_increment_counter (vm, myplugin_node.index, 
+                               MYPLUGIN_ERROR_SWAPPED, pkts_swapped);
   return frame->n_vectors;
 }
 
 /* *INDENT-OFF* */
 #ifndef CLIB_MARCH_VARIANT
-VLIB_REGISTER_NODE (my_test_plugin_node) = 
+VLIB_REGISTER_NODE (myplugin_node) = 
 {
-  .name = "my_test_plugin",
+  .name = "myplugin",
   .vector_size = sizeof (u32),
-  .format_trace = format_my_test_plugin_trace,
+  .format_trace = format_myplugin_trace,
   .type = VLIB_NODE_TYPE_INTERNAL,
   
-  .n_errors = ARRAY_LEN(my_test_plugin_error_strings),
-  .error_strings = my_test_plugin_error_strings,
+  .n_errors = ARRAY_LEN(myplugin_error_strings),
+  .error_strings = myplugin_error_strings,
 
-  .n_next_nodes = MY_TEST_PLUGIN_N_NEXT,
+  .n_next_nodes = MYPLUGIN_N_NEXT,
 
   /* edit / add dispositions here */
   .next_nodes = {
-        [MY_TEST_PLUGIN_NEXT_INTERFACE_OUTPUT] = "interface-output",
+        [MYPLUGIN_NEXT_INTERFACE_OUTPUT] = "interface-output",
   },
 };
 #endif /* CLIB_MARCH_VARIANT */

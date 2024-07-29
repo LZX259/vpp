@@ -1,5 +1,5 @@
 /*
- * my_test_plugin.c - skeleton vpp engine plug-in
+ * myplugin.c - skeleton vpp engine plug-in
  *
  * Copyright (c) <current-year> <your-organization>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,24 +17,24 @@
 
 #include <vnet/vnet.h>
 #include <vnet/plugin/plugin.h>
-#include <my_test_plugin/my_test_plugin.h>
+#include <myplugin/myplugin.h>
 
 #include <vlibapi/api.h>
 #include <vlibmemory/api.h>
 #include <vpp/app/version.h>
 #include <stdbool.h>
 
-#include <my_test_plugin/my_test_plugin.api_enum.h>
-#include <my_test_plugin/my_test_plugin.api_types.h>
+#include <myplugin/myplugin.api_enum.h>
+#include <myplugin/myplugin.api_types.h>
 
 #define REPLY_MSG_ID_BASE mmp->msg_id_base
 #include <vlibapi/api_helper_macros.h>
 
-my_test_plugin_main_t my_test_plugin_main;
+myplugin_main_t myplugin_main;
 
 /* Action function shared between message handler and debug CLI */
 
-int my_test_plugin_enable_disable (my_test_plugin_main_t * mmp, u32 sw_if_index,
+int myplugin_enable_disable (myplugin_main_t * mmp, u32 sw_if_index,
                                    int enable_disable)
 {
   vnet_sw_interface_t * sw;
@@ -50,25 +50,25 @@ int my_test_plugin_enable_disable (my_test_plugin_main_t * mmp, u32 sw_if_index,
   if (sw->type != VNET_SW_INTERFACE_TYPE_HARDWARE)
     return VNET_API_ERROR_INVALID_SW_IF_INDEX;
 
-  my_test_plugin_create_periodic_process (mmp);
+  myplugin_create_periodic_process (mmp);
 
-  vnet_feature_enable_disable ("device-input", "my_test_plugin",
+  vnet_feature_enable_disable ("device-input", "myplugin",
                                sw_if_index, enable_disable, 0, 0);
 
   /* Send an event to enable/disable the periodic scanner process */
   vlib_process_signal_event (mmp->vlib_main,
                              mmp->periodic_node_index,
-                             MY_TEST_PLUGIN_EVENT_PERIODIC_ENABLE_DISABLE,
+                             MYPLUGIN_EVENT_PERIODIC_ENABLE_DISABLE,
                             (uword)enable_disable);
   return rv;
 }
 
 static clib_error_t *
-my_test_plugin_enable_disable_command_fn (vlib_main_t * vm,
+myplugin_enable_disable_command_fn (vlib_main_t * vm,
                                    unformat_input_t * input,
                                    vlib_cli_command_t * cmd)
 {
-  my_test_plugin_main_t * mmp = &my_test_plugin_main;
+  myplugin_main_t * mmp = &myplugin_main;
   u32 sw_if_index = ~0;
   int enable_disable = 1;
 
@@ -88,7 +88,7 @@ my_test_plugin_enable_disable_command_fn (vlib_main_t * vm,
   if (sw_if_index == ~0)
     return clib_error_return (0, "Please specify an interface...");
 
-  rv = my_test_plugin_enable_disable (mmp, sw_if_index, enable_disable);
+  rv = myplugin_enable_disable (mmp, sw_if_index, enable_disable);
 
   switch(rv)
     {
@@ -105,42 +105,42 @@ my_test_plugin_enable_disable_command_fn (vlib_main_t * vm,
     break;
 
   default:
-    return clib_error_return (0, "my_test_plugin_enable_disable returned %d",
+    return clib_error_return (0, "myplugin_enable_disable returned %d",
                               rv);
     }
   return 0;
 }
 
 /* *INDENT-OFF* */
-VLIB_CLI_COMMAND (my_test_plugin_enable_disable_command, static) =
+VLIB_CLI_COMMAND (myplugin_enable_disable_command, static) =
 {
-  .path = "my_test_plugin enable-disable",
+  .path = "myplugin enable-disable",
   .short_help =
-  "my_test_plugin enable-disable <interface-name> [disable]",
-  .function = my_test_plugin_enable_disable_command_fn,
+  "myplugin enable-disable <interface-name> [disable]",
+  .function = myplugin_enable_disable_command_fn,
 };
 /* *INDENT-ON* */
 
 /* API message handler */
-static void vl_api_my_test_plugin_enable_disable_t_handler
-(vl_api_my_test_plugin_enable_disable_t * mp)
+static void vl_api_myplugin_enable_disable_t_handler
+(vl_api_myplugin_enable_disable_t * mp)
 {
-  vl_api_my_test_plugin_enable_disable_reply_t * rmp;
-  my_test_plugin_main_t * mmp = &my_test_plugin_main;
+  vl_api_myplugin_enable_disable_reply_t * rmp;
+  myplugin_main_t * mmp = &myplugin_main;
   int rv;
 
-  rv = my_test_plugin_enable_disable (mmp, ntohl(mp->sw_if_index),
+  rv = myplugin_enable_disable (mmp, ntohl(mp->sw_if_index),
                                       (int) (mp->enable_disable));
 
-  REPLY_MACRO(VL_API_MY_TEST_PLUGIN_ENABLE_DISABLE_REPLY);
+  REPLY_MACRO(VL_API_MYPLUGIN_ENABLE_DISABLE_REPLY);
 }
 
 /* API definitions */
-#include <my_test_plugin/my_test_plugin.api.c>
+#include <myplugin/myplugin.api.c>
 
-static clib_error_t * my_test_plugin_init (vlib_main_t * vm)
+static clib_error_t * myplugin_init (vlib_main_t * vm)
 {
-  my_test_plugin_main_t * mmp = &my_test_plugin_main;
+  myplugin_main_t * mmp = &myplugin_main;
   clib_error_t * error = 0;
 
   mmp->vlib_main = vm;
@@ -152,13 +152,13 @@ static clib_error_t * my_test_plugin_init (vlib_main_t * vm)
   return error;
 }
 
-VLIB_INIT_FUNCTION (my_test_plugin_init);
+VLIB_INIT_FUNCTION (myplugin_init);
 
 /* *INDENT-OFF* */
-VNET_FEATURE_INIT (my_test_plugin, static) =
+VNET_FEATURE_INIT (myplugin, static) =
 {
   .arc_name = "device-input",
-  .node_name = "my_test_plugin",
+  .node_name = "myplugin",
   .runs_before = VNET_FEATURES ("ethernet-input"),
 };
 /* *INDENT-ON */
@@ -167,7 +167,7 @@ VNET_FEATURE_INIT (my_test_plugin, static) =
 VLIB_PLUGIN_REGISTER () =
 {
   .version = VPP_BUILD_VER,
-  .description = "my_test_plugin plugin description goes here",
+  .description = "myplugin plugin description goes here",
 };
 /* *INDENT-ON* */
 

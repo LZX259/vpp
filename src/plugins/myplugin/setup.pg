@@ -12,7 +12,7 @@ packet-generator new {
     limit 1
     size 128-128
     interface loop0
-    node my_test_plugin
+    node myplugin
     data {
         hex 0x00deadbeef0001badbabbe010800 
         incrementing 30

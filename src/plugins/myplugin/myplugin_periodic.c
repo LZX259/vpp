@@ -1,5 +1,5 @@
 /*
- * my_test_plugin_periodic.c - skeleton plug-in periodic function
+ * myplugin_periodic.c - skeleton plug-in periodic function
  *
  * Copyright (c) <current-year> <your-organization>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,22 +17,22 @@
 
 #include <vlib/vlib.h>
 #include <vppinfra/error.h>
-#include <my_test_plugin/my_test_plugin.h>
+#include <myplugin/myplugin.h>
 
 static void
-handle_event1 (my_test_plugin_main_t *pm, f64 now, uword event_data)
+handle_event1 (myplugin_main_t *pm, f64 now, uword event_data)
 {
-  clib_warning ("received MY_TEST_PLUGIN_EVENT1");
+  clib_warning ("received MYPLUGIN_EVENT1");
 }
 
 static void
-handle_event2 (my_test_plugin_main_t *pm, f64 now, uword event_data)
+handle_event2 (myplugin_main_t *pm, f64 now, uword event_data)
 {
-  clib_warning ("received MY_TEST_PLUGIN_EVENT2");
+  clib_warning ("received MYPLUGIN_EVENT2");
 }
 
 static void
-handle_periodic_enable_disable (my_test_plugin_main_t *pm, f64 now, uword event_data)
+handle_periodic_enable_disable (myplugin_main_t *pm, f64 now, uword event_data)
 {
    clib_warning ("Periodic timeouts now %s",
      event_data ? "enabled" : "disabled");
@@ -40,16 +40,16 @@ handle_periodic_enable_disable (my_test_plugin_main_t *pm, f64 now, uword event_
 }
 
 static void
-handle_timeout (my_test_plugin_main_t *pm, f64 now)
+handle_timeout (myplugin_main_t *pm, f64 now)
 {
   clib_warning ("timeout at %.2f", now);
 }
 
 static uword
-my_test_plugin_periodic_process (vlib_main_t * vm,
+myplugin_periodic_process (vlib_main_t * vm,
 	                  vlib_node_runtime_t * rt, vlib_frame_t * f)
 {
-  my_test_plugin_main_t *pm = &my_test_plugin_main;
+  myplugin_main_t *pm = &myplugin_main;
   f64 now;
   f64 timeout = 10.0;
   uword *event_data = 0;
@@ -69,19 +69,19 @@ my_test_plugin_periodic_process (vlib_main_t * vm,
 
       switch (event_type)
 	{
-	  /* Handle MY_TEST_PLUGIN_EVENT1 */
-	case MY_TEST_PLUGIN_EVENT1:
+	  /* Handle MYPLUGIN_EVENT1 */
+	case MYPLUGIN_EVENT1:
 	  for (i = 0; i < vec_len (event_data); i++)
 	    handle_event1 (pm, now, event_data[i]);
 	  break;
 
-	  /* Handle MY_TEST_PLUGIN_EVENT2 */
-	case MY_TEST_PLUGIN_EVENT2:
+	  /* Handle MYPLUGIN_EVENT2 */
+	case MYPLUGIN_EVENT2:
 	  for (i = 0; i < vec_len (event_data); i++)
 	    handle_event2 (pm, now, event_data[i]);
 	  break;
           /* Handle the periodic timer on/off event */
-	case MY_TEST_PLUGIN_EVENT_PERIODIC_ENABLE_DISABLE:
+	case MYPLUGIN_EVENT_PERIODIC_ENABLE_DISABLE:
 	  for (i = 0; i < vec_len (event_data); i++)
 	    handle_periodic_enable_disable (pm, now, event_data[i]);
 	  break;
@@ -96,7 +96,7 @@ my_test_plugin_periodic_process (vlib_main_t * vm,
   return 0;			/* or not */
 }
 
-void my_test_plugin_create_periodic_process (my_test_plugin_main_t *mmp)
+void myplugin_create_periodic_process (myplugin_main_t *mmp)
 {
   /* Already created the process node? */
   if (mmp->periodic_node_index > 0)
@@ -104,8 +104,8 @@ void my_test_plugin_create_periodic_process (my_test_plugin_main_t *mmp)
 
   /* No, create it now and make a note of the node index */
   mmp->periodic_node_index = vlib_process_create (mmp->vlib_main,
-    "my_test_plugin-periodic-process",
-    my_test_plugin_periodic_process, 16 /* log2_n_stack_bytes */);
+    "myplugin-periodic-process",
+    myplugin_periodic_process, 16 /* log2_n_stack_bytes */);
 }
 
 /*
